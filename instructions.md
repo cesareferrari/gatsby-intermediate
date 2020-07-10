@@ -143,3 +143,64 @@ a 404 error because we have no pages yet).
 ```
 yarn workspace theme-dev develop
 ```
+
+## Prebootstrap
+
+Go into the theme folder and create a `gatsby-node.js` file.
+
+Also, create a `utils` folder and a `default-options.js` file inside of it
+
+```
+touch gatsby-node.js
+mkdir utils
+touch utils/default-options.js
+```
+
+In the default-options.js file, add this code:
+
+```
+module.exports = ({
+  basePath = '/',
+  contentPath = 'docs',
+  useExternalMDX = false
+}) => ({basePath, contentPath, useExternalMDX})
+```
+
+In the `gatsby-node.js` file, add this code:
+
+```
+export.onPreBootstrap = ({store}, options) => {
+  const {program} = store.getState()getState()
+}
+```
+
+Install the mkdirp package, to create directories:
+```
+yarn workspace gatsby-theme-docs add mkdirp
+```
+
+Add this code to `gatsby-node.js`:
+
+```
+const path = require('path');
+const fs = require('fs');
+const mkdirp = require('mkdirp');
+const withDefaults = require('./utils/default-options');
+
+exports.onPreBootstrap = ({store}, options) => {
+  const { program } = store.getState();
+  const { contentPath } = withDefaults(options);
+  const dir = path.join(program.directory, contentPath);
+
+  if (!fs.existsSync(dir)) {
+    mkdirp.sync(dir)
+  }
+}
+```
+
+If we start the development server in theme-dev, it should create the docs
+folder that was specified in the options:
+
+```
+yarn workspace theme-dev develop
+```
